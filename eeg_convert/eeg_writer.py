@@ -17,7 +17,7 @@ class EEGWriter:
         if valid is False:
             raise ValueError(f"{self.ext} is not support")
         if self.ext == convert.Supports.CDT:
-            raise ValueError(f"{self.ext} is not support")
+            raise ValueError(f"{self.ext} is not support export")
         self.signals = ch_dict
         ch_length = len(ch_dict)
         if self.ext == convert.Supports.BDF.value:
