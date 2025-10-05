@@ -1,13 +1,9 @@
-import numpy as np
-
-from eeg_reader import EEGReader
-from eeg_writer import EEGWriter
-
+import eeg_convert
 
 def convert(source, target, low=None, high=None, notch=None):
-    reader = EEGReader(source)
+    reader = eeg_convert.EEGReader(source)
     signals = reader.signals
-    writer = EEGWriter(target, signals)
+    writer = eeg_convert.EEGWriter(target, signals)
     signal_last_read = {}
     for channel in signals:
         signal_last_read[channel] = 0
@@ -41,8 +37,40 @@ def convert(source, target, low=None, high=None, notch=None):
             writer.write_samples(write_data)
     writer.closed()
 
+def convert2(source, target, low=None, high=None, notch=None):
+    reader = eeg_convert.EEGReader(source)
+    signals = reader.signals
+    writer = eeg_convert.EEGWriter(target, signals)
+    signal_last_read = {}
+    for channel in signals:
+        signal_last_read[channel] = 0
+    duration = reader.duration
+    batch = 300
+    for i in range(0, int(duration), batch):
+
+        data = reader.read_by_time(i, batch)
+        filtered = []
+        ch_index = 0
+        for channel in signals:
+            ch_filtered = reader.filter2(data[ch_index], signals[channel], low, high, notch)
+            filtered.append(ch_filtered)
+            ch_index = ch_index + 1
+        for j in range(batch + 1):
+            write_data = []
+            ch_index = 0
+            for channel in signals:
+                sample_rate = signals[channel]
+                ch_data = filtered[ch_index]
+                if j * sample_rate + sample_rate > len(ch_data):
+                    break
+                write_data.append(ch_data[j * sample_rate:j * sample_rate + sample_rate])
+                ch_index = ch_index + 1
+            if len(write_data) == 0:
+                break
+            writer.write_samples(write_data)
+    writer.closed()
 
 if __name__ == '__main__':
     source_path = "C:\\Users\yimin\Downloads\MonkeySignalContrast\MonkeySignalContrast\data.edf"
     target_path = "C:\\Users\yimin\Downloads\MonkeySignalContrast\MonkeySignalContrast\data2.edf"
-    convert(source_path, target_path, 45, 0.3, None)
+    convert2(source_path, target_path, 45, 0.3, None)
