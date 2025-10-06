@@ -1,4 +1,4 @@
-import mne.io
+from mne import io
 import numpy as np
 import pyedflib
 import os
@@ -33,7 +33,7 @@ class EEGReader:
             print(self.signals)
             self.start_time = self.source.getStartdatetime
         elif self.ext == convert.Supports.CDT.value:
-            self.source = mne.io.read_raw_curry(path)
+            self.source = io.read_raw_curry(path)
             raw_info = self.source.info
             sfreq = raw_info['sfreq']
             for channel in raw_info.ch_names:

@@ -1,5 +1,6 @@
 import eeg_convert
 import argparse
+
 def convert(source, target, low=None, high=None, notch=None):
     reader = eeg_convert.EEGReader(source)
     signals = reader.signals
