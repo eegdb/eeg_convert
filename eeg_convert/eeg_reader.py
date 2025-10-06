@@ -110,7 +110,7 @@ class EEGReader:
                 half = filtered.size / 2
                 data = filtered[int(half):]
         if notch is not None:
-            data = self._notch_filter(data, notch, sample_rate)
+            data = self._notch_filter(data, notch, sample_rate).flatten(order='C')
         # if isinstance(data, np.ndarray):  # 判断是否为 NumPy 数组
         #     return data.tolist()
         return data
@@ -123,14 +123,15 @@ class EEGReader:
         return b, a
 
     @staticmethod
-    def _notch_filter(exg_data, removed_notch_hz, freq):
+    def _notch_filter(data, removed_notch_hz, freq):
         if removed_notch_hz < freq / 2:
-            q_notch = 10  # Quality factor
-            w0 = removed_notch_hz / (freq / 2)  # Normalized Frequency
+            q_notch = 10
+            w0 = removed_notch_hz / (freq / 2)
             c, d = signal.iirnotch(w0, q_notch)
-            filtered = signal.filtfilt(c, d, exg_data)  # the eeg data we want
+            filtered = signal.filtfilt(c, d, data)
+            filtered = np.ascontiguousarray(filtered)
             return filtered
-        return exg_data
+        return data
 
     def _get_ch_index(self, ch_name):
         try:

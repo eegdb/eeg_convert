@@ -76,16 +76,22 @@ def main():
     p.add_argument('-i', '--in', dest='infile', required=True,
                    help='Curry/EDF/BDF/SET/MAT')
     p.add_argument('-o', '--out', dest='outfile', required=True, help='EDF/BDF/SET/MAT')
-    p.add_argument('-low_pass', help='low_pass_filter(butterworth)')
+    p.add_argument('--low_pass', help='low_pass_filter(butterworth)')
     p.add_argument('--high_pass', help='high_pass_filter(butterworth)')
     p.add_argument('--notch', help='notch')
     args = p.parse_args()
 
     infile = args.infile
     outfile = args.outfile
-    low = args.low_pass
-    high = args.high_pass
-    notch = args.notch
+    low = None
+    if args.low_pass is not None:
+        low = float(args.low_pass)
+    high = None
+    if args.high_pass is not None:
+        high = float(args.high_pass)
+    notch = None
+    if args.notch is not None:
+        notch = float(args.notch)
     convert2(infile, outfile, low, high, notch)
     print("success")
 
